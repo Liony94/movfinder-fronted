@@ -4,8 +4,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from './components/HomeScreen';
 import Films from './components/Films';
-import Login from './components/Login';
+import Register from './components/Register';
 import Profile from './components/Profile';
+import Login from './components/Login';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -14,9 +15,22 @@ const Stack = createStackNavigator();
 
 function HomeStack() {
   return (
-    <Stack.Navigator initialRouteName="Home">
+    <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Mov\'Finder' }} />
       <Stack.Screen name="Films" component={Films} options={{ title: 'Films' }} />
+    </Stack.Navigator>
+  );
+}
+
+function AuthStack({ setIsAuthenticated }) {
+  return (
+    <Stack.Navigator initialRouteName="Inscription" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Inscription">
+        {(props) => <Register {...props} setIsAuthenticated={setIsAuthenticated} />}
+      </Stack.Screen>
+      <Stack.Screen name="Connexion">
+        {(props) => <Login {...props} setIsAuthenticated={setIsAuthenticated} />}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }
@@ -31,9 +45,26 @@ export default function App() {
     const checkToken = async () => {
       const token = await AsyncStorage.getItem('@token');
       if (token) {
-        setIsAuthenticated(true);
+        // Vérifiez la validité du token avec votre API
+        try {
+          const response = await fetch('https://127.0.0.1:8000/api/verify_token', {  // Mettez votre propre endpoint
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          
+          if (response.status === 200) {
+            setIsAuthenticated(true);
+          } else {
+            // Le token n'est pas valide, le supprimer
+            await AsyncStorage.removeItem('@token');
+          }
+        } catch (error) {
+          console.error('An error occurred', error);
+        }
       }
     };
+
     checkToken();
   }, []);
 
@@ -43,9 +74,13 @@ export default function App() {
         <Tab.Screen name="Home" component={HomeStack} />
         <Tab.Screen name="Films" component={Films} />
         {isAuthenticated ? (
-          <Tab.Screen name="Profil" component={Profile} />
+          <Tab.Screen name="Profil">
+            {(props) => <Profile {...props} setIsAuthenticated={setIsAuthenticated} />}
+          </Tab.Screen>
         ) : (
-          <Tab.Screen name="Connexion" component={Login} />
+           <Tab.Screen name="Auth" options={{ title: "Connexion / Inscription" }}>
+            {(props) => <AuthStack {...props} setIsAuthenticated={setIsAuthenticated} />}
+          </Tab.Screen>
         )}
         {/* Vous pouvez ajouter d'autres onglets ici si nécessaire */}
       </Tab.Navigator>
