@@ -12,12 +12,6 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.introText}>
           Swipe tes films/séries préférés et compare tes likes avec tes amis !
         </Text>
-        <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('Films')}
-      >
-        <Text style={styles.buttonText}>C'est parti</Text>
-      </TouchableOpacity>
       </View>
 
       <View style={styles.features}>

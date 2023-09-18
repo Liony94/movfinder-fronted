@@ -13,15 +13,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Création du Stack Navigator
 const Stack = createStackNavigator();
 
-function HomeStack() {
-  return (
-    <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Mov\'Finder' }} />
-      <Stack.Screen name="Films" component={Films} options={{ title: 'Films' }} />
-    </Stack.Navigator>
-  );
-}
-
 function AuthStack({ setIsAuthenticated }) {
   return (
     <Stack.Navigator initialRouteName="Inscription" screenOptions={{ headerShown: false }}>
@@ -71,7 +62,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator>
-        <Tab.Screen name="Home" component={HomeStack} />
+        <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Films" component={Films} />
         {isAuthenticated ? (
           <Tab.Screen name="Profil">
